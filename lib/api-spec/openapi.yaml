@@ -3,20 +3,27 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: LeadFlow AI API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: auth
+  - name: business
+  - name: dashboard
+  - name: leads
+  - name: conversations
+  - name: assistant
+  - name: automation
+  - name: chat
+  - name: analytics
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +31,656 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /auth/signup:
+    post:
+      operationId: signUp
+      tags: [auth]
+      summary: Create an owner account and business
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUpInput"
+      responses:
+        "201":
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSession"
+  /auth/login:
+    post:
+      operationId: logIn
+      tags: [auth]
+      summary: Log in an owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSession"
+  /auth/logout:
+    post:
+      operationId: logOut
+      tags: [auth]
+      summary: Log out the current owner
+      responses:
+        "204":
+          description: Logged out
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get the current owner
+      responses:
+        "200":
+          description: Current owner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentUser"
+  /business:
+    get:
+      operationId: getBusiness
+      tags: [business]
+      summary: Get the current business
+      responses:
+        "200":
+          description: Business
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Business"
+    patch:
+      operationId: updateBusiness
+      tags: [business]
+      summary: Update the current business
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BusinessUpdate"
+      responses:
+        "200":
+          description: Updated business
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Business"
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get dashboard metrics and recent activity
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+  /leads:
+    get:
+      operationId: listLeads
+      tags: [leads]
+      summary: List leads for the current business
+      parameters:
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/Status"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          description: Lead list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeadList"
+    post:
+      operationId: createLead
+      tags: [leads]
+      summary: Create and qualify a lead
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeadInput"
+      responses:
+        "201":
+          description: Created lead
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+  /leads/{leadId}:
+    get:
+      operationId: getLead
+      tags: [leads]
+      summary: Get a lead with its conversation and scoring reasons
+      parameters:
+        - $ref: "#/components/parameters/LeadId"
+      responses:
+        "200":
+          description: Lead detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeadDetail"
+    patch:
+      operationId: updateLead
+      tags: [leads]
+      summary: Update a lead status
+      parameters:
+        - $ref: "#/components/parameters/LeadId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeadUpdate"
+      responses:
+        "200":
+          description: Updated lead
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+    delete:
+      operationId: deleteLead
+      tags: [leads]
+      summary: Delete a lead
+      parameters:
+        - $ref: "#/components/parameters/LeadId"
+      responses:
+        "204":
+          description: Deleted
+  /conversations:
+    get:
+      operationId: listConversations
+      tags: [conversations]
+      summary: List chatbot conversations
+      responses:
+        "200":
+          description: Conversation list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversation"
+  /conversations/{conversationId}:
+    get:
+      operationId: getConversation
+      tags: [conversations]
+      summary: Get a conversation with messages
+      parameters:
+        - $ref: "#/components/parameters/ConversationId"
+      responses:
+        "200":
+          description: Conversation detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationDetail"
+    patch:
+      operationId: updateConversation
+      tags: [conversations]
+      summary: Update conversation status
+      parameters:
+        - $ref: "#/components/parameters/ConversationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConversationUpdate"
+      responses:
+        "200":
+          description: Updated conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+  /assistant:
+    get:
+      operationId: getAssistant
+      tags: [assistant]
+      summary: Get assistant configuration
+      responses:
+        "200":
+          description: Assistant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assistant"
+    patch:
+      operationId: updateAssistant
+      tags: [assistant]
+      summary: Update assistant configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssistantUpdate"
+      responses:
+        "200":
+          description: Updated assistant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assistant"
+  /automations:
+    get:
+      operationId: listAutomations
+      tags: [automation]
+      summary: Get automation settings
+      responses:
+        "200":
+          description: Automations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Automation"
+    patch:
+      operationId: updateAutomation
+      tags: [automation]
+      summary: Update an automation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutomationUpdate"
+      responses:
+        "200":
+          description: Updated automation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Automation"
+  /analytics:
+    get:
+      operationId: getAnalytics
+      tags: [analytics]
+      summary: Get analytics for the current business
+      responses:
+        "200":
+          description: Analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Analytics"
+  /chat/{businessSlug}:
+    post:
+      operationId: sendChatMessage
+      tags: [chat]
+      summary: Send a message to a business chatbot
+      parameters:
+        - in: path
+          name: businessSlug
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatInput"
+      responses:
+        "200":
+          description: Assistant response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+
 components:
+  parameters:
+    LeadId:
+      in: path
+      name: leadId
+      required: true
+      schema:
+        type: string
+    ConversationId:
+      in: path
+      name: conversationId
+      required: true
+      schema:
+        type: string
+    Search:
+      in: query
+      name: search
+      required: false
+      schema:
+        type: string
+    Status:
+      in: query
+      name: status
+      required: false
+      schema:
+        type: string
+    Page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+        default: 1
+    PageSize:
+      in: query
+      name: pageSize
+      required: false
+      schema:
+        type: integer
+        default: 20
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
-
+    SignUpInput:
+      type: object
+      required: [fullName, email, password, businessName]
+      properties:
+        fullName: { type: string, minLength: 2 }
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
+        businessName: { type: string, minLength: 2 }
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
+    AuthSession:
+      type: object
+      required: [user, business]
+      properties:
+        user: { $ref: "#/components/schemas/CurrentUser" }
+        business: { $ref: "#/components/schemas/Business" }
+    CurrentUser:
+      type: object
+      required: [id, name, email]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string, format: email }
+    Business:
+      type: object
+      required: [id, name, slug, industry, description]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        slug: { type: string }
+        industry: { type: string }
+        description: { type: string }
+        location: { type: ["string", "null"] }
+        website: { type: ["string", "null"] }
+    BusinessUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        industry: { type: string }
+        description: { type: string }
+        location: { type: string }
+        website: { type: string }
+    Metric:
+      type: object
+      required: [label, value, change]
+      properties:
+        label: { type: string }
+        value: { type: number }
+        change: { type: number }
+        format: { type: string }
+    Activity:
+      type: object
+      required: [id, title, description, timestamp, kind]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        timestamp: { type: string }
+        kind: { type: string }
+    DashboardSummary:
+      type: object
+      required: [metrics, pipeline, recentActivity]
+      properties:
+        metrics:
+          type: array
+          items: { $ref: "#/components/schemas/Metric" }
+        pipeline:
+          type: object
+          required: [hot, warm, cold, converted]
+          properties:
+            hot: { type: integer }
+            warm: { type: integer }
+            cold: { type: integer }
+            converted: { type: integer }
+        recentActivity:
+          type: array
+          items: { $ref: "#/components/schemas/Activity" }
+    Lead:
+      type: object
+      required: [id, name, email, phone, service, budget, location, timeline, score, status, source, createdAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string }
+        phone: { type: string }
+        service: { type: string }
+        budget: { type: string }
+        location: { type: string }
+        timeline: { type: string }
+        score: { type: integer, minimum: 0, maximum: 100 }
+        status: { type: string }
+        source: { type: string }
+        createdAt: { type: string }
+        conversationId: { type: ["string", "null"] }
+    LeadList:
+      type: object
+      required: [items, total, page, pageSize]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Lead" }
+        total: { type: integer }
+        page: { type: integer }
+        pageSize: { type: integer }
+    LeadInput:
+      type: object
+      required: [name, email, phone, service, budget, location, timeline, source]
+      properties:
+        name: { type: string }
+        email: { type: string }
+        phone: { type: string }
+        service: { type: string }
+        budget: { type: string }
+        location: { type: string }
+        timeline: { type: string }
+        source: { type: string }
+        conversationId: { type: string }
+    LeadUpdate:
+      type: object
+      properties:
+        status: { type: string }
+    QualificationReason:
+      type: object
+      required: [label, points]
+      properties:
+        label: { type: string }
+        points: { type: integer }
+    LeadDetail:
+      allOf:
+        - $ref: "#/components/schemas/Lead"
+        - type: object
+          required: [qualificationReasons, conversation]
+          properties:
+            qualificationReasons:
+              type: array
+              items: { $ref: "#/components/schemas/QualificationReason" }
+            conversation:
+              $ref: "#/components/schemas/ConversationDetail"
+    Message:
+      type: object
+      required: [id, role, content, createdAt]
+      properties:
+        id: { type: string }
+        role: { type: string }
+        content: { type: string }
+        createdAt: { type: string }
+    Conversation:
+      type: object
+      required: [id, visitorName, status, startedAt, lastActivityAt, messageCount]
+      properties:
+        id: { type: string }
+        visitorName: { type: string }
+        status: { type: string }
+        startedAt: { type: string }
+        lastActivityAt: { type: string }
+        messageCount: { type: integer }
+        leadId: { type: ["string", "null"] }
+    ConversationDetail:
+      allOf:
+        - $ref: "#/components/schemas/Conversation"
+        - type: object
+          required: [messages]
+          properties:
+            messages:
+              type: array
+              items: { $ref: "#/components/schemas/Message" }
+            lead:
+              anyOf:
+                - $ref: "#/components/schemas/Lead"
+                - type: "null"
+    ConversationUpdate:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string }
+    FAQ:
+      type: object
+      required: [question, answer]
+      properties:
+        question: { type: string }
+        answer: { type: string }
+    Assistant:
+      type: object
+      required: [id, name, greeting, tone, description, instructions, services, faqs, openingHours, locations]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        greeting: { type: string }
+        tone: { type: string }
+        description: { type: string }
+        instructions: { type: string }
+        services:
+          type: array
+          items: { type: string }
+        faqs:
+          type: array
+          items: { $ref: "#/components/schemas/FAQ" }
+        openingHours: { type: string }
+        locations: { type: string }
+    AssistantUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        greeting: { type: string }
+        tone: { type: string }
+        description: { type: string }
+        instructions: { type: string }
+        services:
+          type: array
+          items: { type: string }
+        faqs:
+          type: array
+          items: { $ref: "#/components/schemas/FAQ" }
+        openingHours: { type: string }
+        locations: { type: string }
+    Automation:
+      type: object
+      required: [id, key, label, description, enabled]
+      properties:
+        id: { type: string }
+        key: { type: string }
+        label: { type: string }
+        description: { type: string }
+        enabled: { type: boolean }
+    AutomationUpdate:
+      type: object
+      required: [key, enabled]
+      properties:
+        key: { type: string }
+        enabled: { type: boolean }
+    Analytics:
+      type: object
+      required: [totals, bySource, byService, overTime]
+      properties:
+        totals:
+          type: object
+          required: [conversations, leads, hot, warm, cold, conversionRate, averageScore]
+          properties:
+            conversations: { type: integer }
+            leads: { type: integer }
+            hot: { type: integer }
+            warm: { type: integer }
+            cold: { type: integer }
+            conversionRate: { type: number }
+            averageScore: { type: number }
+        bySource:
+          type: array
+          items:
+            type: object
+            required: [label, value]
+            properties:
+              label: { type: string }
+              value: { type: integer }
+        byService:
+          type: array
+          items:
+            type: object
+            required: [label, value]
+            properties:
+              label: { type: string }
+              value: { type: integer }
+        overTime:
+          type: array
+          items:
+            type: object
+            required: [date, leads, conversations]
+            properties:
+              date: { type: string }
+              leads: { type: integer }
+              conversations: { type: integer }
+    ChatInput:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string, minLength: 1 }
+        conversationId: { type: ["string", "null"] }
+    ChatResponse:
+      type: object
+      required: [conversationId, message, assistantName, leadCaptured]
+      properties:
+        conversationId: { type: string }
+        message: { type: string }
+        assistantName: { type: string }
+        leadCaptured: { type: boolean }
+        leadId: { type: ["string", "null"] }
