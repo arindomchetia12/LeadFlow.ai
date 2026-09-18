@@ -8,10 +8,10 @@ import { shadcn } from '@clerk/themes';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import NotFound from '@/pages/not-found';
-import { LandingPage, PricingPage } from '@/pages/public';
-import { AuthPage } from '@/pages/auth';
-import { PublicChatPage } from '@/pages/chat';
+import NotFound from '@/screens/not-found';
+import { LandingPage, PricingPage } from '@/screens/public';
+import { AuthPage } from '@/screens/auth';
+import { PublicChatPage } from '@/screens/chat';
 import {
   AnalyticsPage,
   AssistantPage,
@@ -21,7 +21,7 @@ import {
   LeadsPage,
   OverviewPage,
   SettingsPage,
-} from '@/pages/dashboard';
+} from '@/screens/dashboard';
 import {
   Route,
   Redirect,
@@ -169,6 +169,7 @@ function App() {
           </TooltipProvider>
         </QueryClientProvider>
       </ClerkProvider>
+    </WouterRouter>
   );
 }
 
