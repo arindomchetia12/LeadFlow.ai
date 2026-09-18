@@ -32,11 +32,16 @@ import {
 
 const queryClient = new QueryClient();
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH?.replace(/\/$/, '') ?? '';
+const clerkHost =
+  process.env.NEXT_PUBLIC_CLERK_HOST ??
+  (typeof window === 'undefined' ? 'localhost' : window.location.hostname);
 const clerkPubKey = publishableKeyFromHost(
-  typeof window === 'undefined' ? '' : window.location.hostname,
+  clerkHost,
   process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
 );
 const clerkProxyUrl = process.env.NEXT_PUBLIC_CLERK_PROXY_URL;
+const logoOrigin =
+  typeof window === 'undefined' ? '' : window.location.origin;
 
 const clerkAppearance = {
   theme: shadcn,
@@ -44,7 +49,7 @@ const clerkAppearance = {
   options: {
     logoPlacement: 'inside' as const,
     logoLinkUrl: basePath || '/',
-    logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
+    logoImageUrl: `${logoOrigin}${basePath}/logo.svg`,
   },
   variables: {
     colorPrimary: '#159477',
