@@ -1,3 +1,5 @@
+'use client';
+
 import { type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ClerkProvider, RedirectToSignIn, Show, SignIn, SignUp, useClerk } from '@clerk/react';
@@ -29,12 +31,12 @@ import {
 } from 'wouter';
 
 const queryClient = new QueryClient();
-const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH?.replace(/\/$/, '') ?? '';
 const clerkPubKey = publishableKeyFromHost(
-  window.location.hostname,
-  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
+  typeof window === 'undefined' ? '' : window.location.hostname,
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
 );
-const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
+const clerkProxyUrl = process.env.NEXT_PUBLIC_CLERK_PROXY_URL;
 
 const clerkAppearance = {
   theme: shadcn,
